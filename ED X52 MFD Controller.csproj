@@ -46,11 +46,9 @@
   <ItemGroup>
     <Compile Include="LogMonitor.cs" />
     <Compile Include="MyApplicationContext.cs" />
-    <Compile Include="DirectOutputWrapper\DirectOutput.cs" />
-    <Compile Include="DirectOutputWrapper\DllHelper.cs" />
-    <Compile Include="DirectOutputWrapper\X52Pro.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="X52.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -75,7 +73,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <None Include="Resources\SystemTrayApp.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DirectOutputWrapper\DirectOutputCSharpWrapper\DirectOutputCSharpWrapper.csproj">
+      <Project>{72a6f29c-07f1-49a1-9030-4a52dd76d507}</Project>
+      <Name>DirectOutputCSharpWrapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -7,7 +7,6 @@ If you haven't already, you'll need to add the line
 to your AppConfig.xml file. 
 
 ## Installation Instructions ##
- 1. Put the binary into the same directory as the `DirectOutput.dll` file that came with your Saitek software.
  2. Execute the binary.
  3. Play the game.
  4. Be amazed!

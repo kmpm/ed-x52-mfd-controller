@@ -30,72 +30,47 @@ namespace ED_X52_MFD_Controller
 {
     static class Program
     {
-        static DirectOutput x52;
-        static IntPtr DirectOutputDevice;
+        static X52 x52;
 
         static String CurrentSystem;
         static String Commander;
         static String PlayMode;
 
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            // Initialize the DirectOutput library
-            x52 = new DirectOutput(Path.GetFullPath("DirectOutput.dll"));
-            x52.Initialize("ED X52 MFD Controller");
-            x52.Enumerate(DirectOutputDeviceEnumerate);
+            using (x52 = new X52())
+            {
+                LogMonitor monitor = new LogMonitor();
+                monitor.DataUpdated += OnNewLogData;
+                monitor.Start();
 
-            LogMonitor monitor = new LogMonitor();
-            monitor.DataUpdated += OnNewLogData;
-            monitor.Start();
-
-            Application.Run(new MyApplicationContext());
-
-            x52.Deinitialize();
+                Application.Run(new MyApplicationContext());
+            }
         }
 
         static void OnNewLogData(object source, LogMonitorEventArgs args)
         {
-            if (DirectOutputDevice != new IntPtr(0))
+            if (args.System != null && args.System != CurrentSystem)
             {
-                if (args.System != null && args.System != CurrentSystem)
-                {
-                    CurrentSystem = args.System;
-                    x52.SetString(DirectOutputDevice, 0, 2, CurrentSystem);
-                }
-
-                if (args.Commander != null && args.Commander != Commander)
-                {
-                    Commander = args.Commander;
-                    x52.SetString(DirectOutputDevice, 0, 0, String.Format("Cmdr {0}", Commander));
-                }
-
-                if (args.PlayMode != null && args.PlayMode != PlayMode)
-                {
-                    PlayMode = args.PlayMode;
-                    x52.SetString(DirectOutputDevice, 0, 1, PlayMode);
-                }
+                CurrentSystem = args.System;
+                x52.UpdateSystem(CurrentSystem);
             }
-        }
 
-        public static void DirectOutputDeviceEnumerate(IntPtr device, IntPtr target)
-        {
-            DirectOutputDevice = device;
-            x52.AddPage(DirectOutputDevice, 0, DirectOutput.IsActive);
-        }
-
-        public static void DirectOutputDeviceChanged(IntPtr device, bool added, IntPtr target)
-        {
-            if (DirectOutputDevice == new IntPtr(0))
+            if (args.Commander != null && args.Commander != Commander)
             {
-                DirectOutputDevice = device;
-                x52.AddPage(DirectOutputDevice, 0, DirectOutput.IsActive);
+                Commander = args.Commander;
+                x52.UpdateCommander(Commander);
+            }
+
+            if (args.PlayMode != null && args.PlayMode != PlayMode)
+            {
+                PlayMode = args.PlayMode;
+                // Change to Title Case before displaying
+                x52.UpdatePlayMode(Regex.Replace(PlayMode, @"\b(\w)", m => m.Value.ToUpper()));
             }
         }
     }
