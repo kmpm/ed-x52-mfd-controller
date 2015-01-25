@@ -44,10 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogMonitor.cs" />
+    <Compile Include="MyApplicationContext.cs" />
     <Compile Include="DirectOutputWrapper\DirectOutput.cs" />
     <Compile Include="DirectOutputWrapper\DllHelper.cs" />
     <Compile Include="DirectOutputWrapper\X52Pro.cs" />
-    <Compile Include="ProcessIcon.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
