@@ -32,10 +32,6 @@ namespace ED_X52_MFD_Controller
     {
         static X52 x52;
 
-        static String CurrentSystem;
-        static String Commander;
-        static String PlayMode;
-
         [STAThread]
         static void Main()
         {
@@ -54,23 +50,19 @@ namespace ED_X52_MFD_Controller
 
         static void OnNewLogData(object source, LogMonitorEventArgs args)
         {
-            if (args.System != null && args.System != CurrentSystem)
+            if (args.System != null)
             {
-                CurrentSystem = args.System;
-                x52.UpdateSystem(CurrentSystem);
+                x52.UpdateSystem(args.System);
             }
 
-            if (args.Commander != null && args.Commander != Commander)
+            if (args.Commander != null) 
             {
-                Commander = args.Commander;
-                x52.UpdateCommander(Commander);
+                x52.UpdateCommander(args.Commander);
             }
 
-            if (args.PlayMode != null && args.PlayMode != PlayMode)
+            if (args.PlayMode != null)
             {
-                PlayMode = args.PlayMode;
-                // Change to Title Case before displaying
-                x52.UpdatePlayMode(Regex.Replace(PlayMode, @"\b(\w)", m => m.Value.ToUpper()));
+                x52.UpdatePlayMode(Regex.Replace(args.PlayMode, @"\b(\w)", m => m.Value.ToUpper()));
             }
         }
     }
