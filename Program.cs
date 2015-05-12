@@ -50,20 +50,7 @@ namespace ED_X52_MFD_Controller
 
         static void OnNewLogData(object source, LogMonitorEventArgs args)
         {
-            if (args.System != null)
-            {
-                x52.UpdateSystem(args.System);
-            }
-
-            if (args.Commander != null) 
-            {
-                x52.UpdateCommander(args.Commander);
-            }
-
-            if (args.PlayMode != null)
-            {
-                x52.UpdatePlayMode(Regex.Replace(args.PlayMode, @"\b(\w)", m => m.Value.ToUpper()));
-            }
+            x52.Updates(args.Updates);
         }
     }
 }

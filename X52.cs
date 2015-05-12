@@ -18,6 +18,7 @@
  **/
 
 using System;
+using System.Collections.Generic;
 using DirectOutputCSharpWrapper;
 
 namespace ED_X52_MFD_Controller
@@ -29,9 +30,9 @@ namespace ED_X52_MFD_Controller
         DirectOutput DeviceInterface;
         IntPtr device;
 
-        String Commander;
-        String PlayMode;
-        String StarSystem;
+        static String template = "Cmdr {commander}\n{station}\n{system}";
+        String[] currentLines = new String[3];
+        UpdateCollection currentValues = new UpdateCollection();
 
         public X52()
         {
@@ -85,55 +86,64 @@ namespace ED_X52_MFD_Controller
             }
         }
 
-        public void UpdateCommander(String name)
+        private void UpdateLine(int page, int line, string msg, params object[] args)
         {
-            if (name != Commander)
+            if (device != new IntPtr(0) && !String.IsNullOrEmpty(msg))
             {
-                Commander = name;
-                if (device != new IntPtr(0))
+                string text;
+                if (args.Length > 0)
                 {
-                    DeviceInterface.SetString(device, DEFAULT_PAGE, (int)Strings.FirstLine, "Cmdr " + name);
+                    text = String.Format(msg, args);
                 }
+                else
+                {
+                    text = msg;
+                }
+                DeviceInterface.SetString(device, page, line, text);
             }
         }
 
-        public void UpdatePlayMode(String mode)
+        public void Updates(UpdateCollection updates)
         {
-            if (mode != PlayMode)
+            string t = template;
+            List<String> changes = new List<String>();
+            foreach (string key in updates.Keys)
             {
-                PlayMode = mode;
-                if (device != new IntPtr(0))
+                if (!currentValues.ContainsKey(key))
                 {
-                    DeviceInterface.SetString(device, DEFAULT_PAGE, (int)Strings.SecondLine, mode);
+                    currentValues.Add(key, updates[key]);
+                    changes.Add(key);
+                }
+                {
+                    if (currentValues[key] != updates[key])
+                    {
+                        changes.Add(key);
+                        currentValues[key] = updates[key];
+                    }
                 }
             }
-        }
 
-        public void UpdateSystem(String name)
-        {
-            if (name != StarSystem)
+            if (changes.Count > 0)
             {
-                StarSystem = name;
-                if (device != new IntPtr(0))
-                {
-                    DeviceInterface.SetString(device, DEFAULT_PAGE, (int)Strings.ThirdLine, name);
-                }
+                RefreshDeviceData();
             }
+
         }
 
         public void RefreshDeviceData()
         {
-            if (Commander != null)
+            string t = template;
+            foreach (string key in currentValues.Keys)
             {
-                DeviceInterface.SetString(device, DEFAULT_PAGE, (int)Strings.FirstLine, "Cmdr " + Commander);
+                t = t.Replace("{" + key + "}", currentValues[key]);
             }
-            if (PlayMode != null)
+            var newlines = t.Split('\n');
+            for (int i = 0; i < currentLines.Length; i++)
             {
-                DeviceInterface.SetString(device, DEFAULT_PAGE, (int)Strings.SecondLine, PlayMode);
-            }
-            if (StarSystem != null)
-            {
-                DeviceInterface.SetString(device, DEFAULT_PAGE, (int)Strings.ThirdLine, StarSystem);
+                if (currentLines[i] != newlines[i])
+                {
+                    UpdateLine(DEFAULT_PAGE, i, newlines[i]);
+                }
             }
         }
     }
