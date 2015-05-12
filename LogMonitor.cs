@@ -42,7 +42,20 @@ namespace ED_X52_MFD_Controller
             SystemRegex = new Regex(@".*System:.+\((.*)\) Body.*");
             PlayerRegex = new Regex(@"FindBestIsland:(.*):(.*)");
 
-            DirectoryInfo dir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Frontier_Developments\\Products\\FORC-FDEV-D-1010\\Logs"));
+            //Get logpath from settings
+            var logPath = ED_X52_MFD_Controller.Properties.Settings.Default.LogPath;
+
+            //if no folder given or it doesen't exist, pick one automatically
+            if (String.IsNullOrEmpty(logPath) || !Directory.Exists(logPath)) { 
+                //There might be different version installed, pick the last one for the directory
+                //TODO: This should be some kind of configurable value.
+                var productPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Frontier_Developments\\Products\\");
+                var dirList = Directory.EnumerateDirectories(productPath, "FORC-FDEV*");
+                var versionPath = dirList.Last();
+                logPath = Path.Combine(versionPath, "Logs");
+            }
+    
+            DirectoryInfo dir = new DirectoryInfo(logPath);
 
             CurrentFile = (from f in dir.GetFiles("netLog.*")
                            orderby f.LastWriteTime descending
