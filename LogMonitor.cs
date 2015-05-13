@@ -29,6 +29,7 @@ namespace ED_X52_MFD_Controller
 {
     class LogMonitor
     {
+        private const int POLL_DELAY=500;
         FileInfo CurrentFile;
         FileSystemWatcher logWatcher;
         bool ResetMonitor;
@@ -40,7 +41,7 @@ namespace ED_X52_MFD_Controller
         public LogMonitor()
         {
             SystemRegex = new Regex(@".*System:.+\((.*)\) Body.*");
-            PlayerRegex = new Regex(@"FindBestIsland:(.*):(.*)");
+            PlayerRegex = new Regex(@"FindBestIsland:(.*)");
 
             //Get logpath from settings
             var logPath = ED_X52_MFD_Controller.Properties.Settings.Default.LogPath;
@@ -103,7 +104,7 @@ namespace ED_X52_MFD_Controller
                         while (!sr.EndOfStream && !ResetMonitor)
                             ProcessLine(sr.ReadLine());
                         while (sr.EndOfStream && !ResetMonitor)
-                            Thread.Sleep(100);
+                            Thread.Sleep(POLL_DELAY);
                         if (!ResetMonitor) ProcessLine(sr.ReadLine());
                     }
                 }
@@ -116,17 +117,21 @@ namespace ED_X52_MFD_Controller
             if (match.Success)
             {
                 LogMonitorEventArgs args = new LogMonitorEventArgs();
-                args.System = match.Groups[1].Value;
+                args.Updates.Add("system", match.Groups[1].Value);
                 OnDataUpdated(args);
                 return;
             }
 
+            //FindBestIsland:<commander>:<playmode>:<station>:<system>
             match = PlayerRegex.Match(line);
             if (match.Success)
             {
                 LogMonitorEventArgs args = new LogMonitorEventArgs();
-                args.Commander = match.Groups[1].Value;
-                args.PlayMode = match.Groups[2].Value;
+                var data = match.Groups[1].Value.Split(':');
+                args.Updates.Add("commander", data[0]);
+                args.Updates.Add("plamode", data[1]);
+                args.Updates.Add("station", data[2]);
+                args.Updates.Add("system", data[3]);
                 OnDataUpdated(args);
             }
         }
@@ -145,8 +150,11 @@ namespace ED_X52_MFD_Controller
 
     public class LogMonitorEventArgs : EventArgs
     {
-        public String System;
-        public String Commander;
-        public String PlayMode;
+        public UpdateCollection Updates = new UpdateCollection();
+    }
+
+    public class UpdateCollection: Dictionary<String, String>
+    {
+
     }
 }
