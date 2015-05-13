@@ -30,7 +30,7 @@ namespace ED_X52_MFD_Controller
         DirectOutput DeviceInterface;
         IntPtr device;
 
-        static String template = "Cmdr {commander}\n{station}\n{system}";
+        static String template = "Cmdr {commander}:{playmode}\n{station}\n{system}";
         String[] currentLines = new String[3];
         UpdateCollection currentValues = new UpdateCollection();
 

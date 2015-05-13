@@ -129,7 +129,7 @@ namespace ED_X52_MFD_Controller
                 LogMonitorEventArgs args = new LogMonitorEventArgs();
                 var data = match.Groups[1].Value.Split(':');
                 args.Updates.Add("commander", data[0]);
-                args.Updates.Add("plamode", data[1]);
+                args.Updates.Add("playmode", data[1]);
                 args.Updates.Add("station", data[2]);
                 args.Updates.Add("system", data[3]);
                 OnDataUpdated(args);
