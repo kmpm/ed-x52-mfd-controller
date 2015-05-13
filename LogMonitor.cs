@@ -76,6 +76,11 @@ namespace ED_X52_MFD_Controller
             MonitorThread.Start();
         }
 
+        public void Stop()
+        {
+            MonitorThread.Abort();
+        }
+
         private void OnNewLogFileCreate(object source, FileSystemEventArgs e)
         {
             CurrentFile = new FileInfo(e.FullPath);

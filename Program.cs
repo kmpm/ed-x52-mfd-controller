@@ -45,6 +45,7 @@ namespace ED_X52_MFD_Controller
                 monitor.Start();
 
                 Application.Run(new MyApplicationContext());
+                monitor.Stop();
             }
         }
 
